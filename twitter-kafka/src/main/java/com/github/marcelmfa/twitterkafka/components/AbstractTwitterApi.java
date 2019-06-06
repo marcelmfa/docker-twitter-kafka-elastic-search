@@ -32,6 +32,7 @@ public abstract class AbstractTwitterApi<T> {
 				.hosts(HttpHosts.STREAM_HOST)
 				.authentication(config.toOAuth1())
 				.endpoint(hosebirdEndpoint)
+				.retries(3)
 				.processor(new StringDelimitedProcessor(msgQueue));
 
 		return builder.build();
