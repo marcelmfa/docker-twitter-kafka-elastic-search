@@ -4,12 +4,15 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
 @Configuration
 public class TwitterApiConfiguration {
+
+	private static final String CLIENT_NAME_KEY = "twitter.client_name";
 
 	@Value("${twitter.api_key}")
 	private String apiKey;
@@ -26,15 +29,24 @@ public class TwitterApiConfiguration {
 	@Value("${twitter.max_messages}")
 	private Long maxMessages = 100000L;
 	
-	@Value("${twitter.client_name}")
 	private String clientName = "Hosebird-Client";
+
+	private Environment env;
 	
+	public TwitterApiConfiguration(Environment env) {
+		this.env = env;
+	}
+
 	@PostConstruct
 	public void postContruct() {
 		Assert.hasText(apiKey, "'apiKey' must not be empty");
 		Assert.hasText(apiSecretKey, "'apiSecretKey' must not be empty");
 		Assert.hasText(accessToken, "'accessToken' must not be empty");
 		Assert.hasText(accessTokenSecret, "'accessTokenSecret' must not be empty");
+
+		if (env.containsProperty(CLIENT_NAME_KEY)) {
+			clientName = env.getProperty(CLIENT_NAME_KEY);
+		}
 	}
 
 	public OAuth1 toOAuth1() {
@@ -48,4 +60,5 @@ public class TwitterApiConfiguration {
 	public String getClientName() {
 		return clientName;
 	}
+	
 }

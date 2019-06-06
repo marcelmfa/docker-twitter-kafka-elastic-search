@@ -4,3 +4,4 @@ twitter:
   access_token: ${TWITTER_ACCESS_TOKEN}
   access_token_secret: ${TWITTER_ACCESS_TOKEN_SECRET}
   max_messages: 100
+  client_name: "Twitter-Client"

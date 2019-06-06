@@ -13,7 +13,7 @@ RUN mvn -B dependency:resolve dependency:resolve-plugins
 #Copy source code
 COPY src /build/src
 # Build application
-RUN mvn package
+RUN mvn -DskipTests package
 
 ### RUNTIME image
 FROM openjdk:11-slim as runtime
@@ -36,4 +36,4 @@ WORKDIR $APP_HOME
 #Copy executable jar file from the builder image
 COPY --from=builder /build/target/*.jar app.jar
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS jar app.jar" ]
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar app.jar" ]
