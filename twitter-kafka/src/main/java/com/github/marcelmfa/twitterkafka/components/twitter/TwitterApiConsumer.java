@@ -1,13 +1,17 @@
-package com.github.marcelmfa.twitterkafka.components;
+package com.github.marcelmfa.twitterkafka.components.twitter;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerWrapper;
 import com.github.marcelmfa.twitterkafka.config.TwitterApiConfiguration;
 import com.twitter.hbc.core.Client;
 
@@ -16,20 +20,32 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 	
 	private Logger LOG = LoggerFactory.getLogger(TwitterApiConsumer.class);
 
-	public TwitterApiConsumer(TwitterApiConfiguration config) {
-		super(config);
-	}
+	private static final String TOPIC = "kafka-tweets";
+	
+	private KafkaProducerWrapper kafkaProducerWrapper;
+	
+	private BlockingQueue<String> msgQueue;
+	
+	private Client client;
 
-	public Void run( ) {
+	public TwitterApiConsumer(TwitterApiConfiguration config, KafkaProducerWrapper kafkaProducerWrapper) {
+		super(config);
+		this.kafkaProducerWrapper = kafkaProducerWrapper;
+	}
+	
+	@PostConstruct
+	public void postConstruct() {
 		/**
 		 * Set up your blocking queues: Be sure to size these properly based on expected
 		 * TPS of your stream
 		 */
-		BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(config.getMaxMessages().intValue());
+		msgQueue = new LinkedBlockingQueue<String>(config.getMaxMessages().intValue());
 
-		Client client = createTwitterClient(msgQueue);
+		client = createTwitterClient(msgQueue);
 		client.connect();
-		
+	}
+
+	public Void run( ) {
 		String msg = null;
 		while (!client.isDone()) {
 			try {
@@ -41,10 +57,18 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 			}
 			
 			if (msg != null) {
-				LOG.info(msg);
+				kafkaProducerWrapper.digest(TOPIC, msg);
 			}
 		}
 		
 		return null;
+	}
+	
+	@PreDestroy
+	public void destroy() {
+		LOG.info("shutting down twitter api consumer");
+		client.stop();
+		msgQueue.clear();
+		msgQueue = null;
 	}
 }

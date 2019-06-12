@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.github.marcelmfa.twitterkafka.components.TwitterApiConsumer;
+import com.github.marcelmfa.twitterkafka.components.twitter.TwitterApiConsumer;
 
 @SpringBootApplication
 public class TwitterKafkaApplication {

@@ -13,6 +13,7 @@ RUN mvn -B dependency:resolve dependency:resolve-plugins
 #Copy source code
 COPY src /build/src
 # Build application
+# FIXME tests are failing building context because ENV vars are not being passed to this runtime
 RUN mvn -DskipTests package
 
 ### RUNTIME image

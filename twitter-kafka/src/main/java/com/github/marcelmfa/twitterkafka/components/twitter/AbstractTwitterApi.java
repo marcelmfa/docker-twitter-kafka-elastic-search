@@ -1,4 +1,4 @@
-package com.github.marcelmfa.twitterkafka.components;
+package com.github.marcelmfa.twitterkafka.components.twitter;
 
 import java.util.concurrent.BlockingQueue;
 
