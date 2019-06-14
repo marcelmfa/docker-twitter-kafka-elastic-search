@@ -12,6 +12,7 @@ services:
     depends_on: 
       - zoo1
       - kafka1
+      - elastic
 
   zoo1:
     image: zookeeper:3.4.9
@@ -43,3 +44,20 @@ services:
       - ./zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
     depends_on:
       - zoo1
+
+  elastic-search:
+    image: elasticsearch/7.1.1
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      "discovery.type": "single-node"
+
+  kibana:
+    image: kibana/7.1.1
+    restart: always
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elastic-search
