@@ -67,8 +67,8 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 	@PreDestroy
 	public void destroy() {
 		LOG.info("shutting down twitter api consumer");
-		client.stop();
 		msgQueue.clear();
 		msgQueue = null;
+		client.stop();
 	}
 }
