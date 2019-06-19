@@ -1,5 +1,6 @@
 package com.github.marcelmfa.twitterkafka.components.twitter;
 
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +28,6 @@ public class TwitterApiConsumer {
 	
 	private Logger LOG = LoggerFactory.getLogger(TwitterApiConsumer.class);
 
-	private static final String TOPIC = "kafka-tweets";
-	
 	private TwitterApiConfiguration config;
 	
 	private KafkaProducerWrapper kafkaProducerWrapper;
@@ -49,7 +48,7 @@ public class TwitterApiConsumer {
 		 * (basic auth or oauth)
 		 */
 		StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint()
-				.trackTerms(Lists.newArrayList("kafka"));
+				.trackTerms(Lists.newArrayList(config.getTerms()));
 
 		ClientBuilder builder = new ClientBuilder()
 				.name(config.getClientName()) // optional: mainly for the logs
@@ -74,7 +73,10 @@ public class TwitterApiConsumer {
 		client.connect();
 	}
 	
-	public void run( ) {
+	@EventListener(ApplicationReadyEvent.class)
+	public void runAfterApplicationReady() {
+		
+		LOG.info("Starting Twitter consumer for terms: " + Arrays.toString(config.getTerms()));
 		String msg = null;
 		while (!client.isDone()) {
 			try {
@@ -85,20 +87,20 @@ public class TwitterApiConsumer {
 				break;
 			}
 			
-			if (msg != null) {
-				kafkaProducerWrapper.digest(TOPIC, msg);
+			if (msg == null) {
+				LOG.info("No message");
+			} else {
+				if (config.isDebug()) {
+					LOG.info("Message received " + msg);
+				}
+				kafkaProducerWrapper.digest(msg);
 			}
 		}
 	}
 	
-	@EventListener(ApplicationReadyEvent.class)
-	public void runAfterApplicationReady() {
-		run();
-	}
-	
 	@PreDestroy
 	public void destroy() {
-		LOG.info("shutting down twitter api consumer");
+		LOG.info("----------------------- SHUTTING DOWN TWITTER API CONSUMER -----------------------");
 		msgQueue.clear();
 		msgQueue = null;
 		client.stop();

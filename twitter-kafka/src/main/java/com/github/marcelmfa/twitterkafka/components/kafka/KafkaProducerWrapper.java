@@ -53,12 +53,16 @@ public class KafkaProducerWrapper {
 		props.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "5");
 	}
 	
-	public void digest(String topic, String msg) {
-		kafkaProducer.send(new ProducerRecord<String, String>(topic, msg), new Callback() {
+	public void digest(String msg) {
+		kafkaProducer.send(new ProducerRecord<String, String>(config.getTopic(), msg), new Callback() {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
 				if (exception != null) {
 					LOG.error("Failed send message", exception);
+				} else if (config.isDebug()){
+					LOG.info("Message sent to Kafka - TOPIC: " + metadata.topic() +
+							"Partition: " + metadata.partition() +
+							"offset: " + metadata.offset());
 				}
 			}
 		});
@@ -66,7 +70,7 @@ public class KafkaProducerWrapper {
 	
 	@PreDestroy
 	public void destroy() {
-		LOG.info("shutting down kafka producer");
+		LOG.info("----------------------- SHUTTING DOWN KAFKA PRODUCER -----------------------");
 		kafkaProducer.close();
 	}
 }

@@ -6,9 +6,9 @@ services:
       - "2181:2181"
     restart: always
     environment:
-        ZOO_MY_ID: 1
-        ZOO_PORT: 2181
-        ZOO_SERVERS: server.1=zoo1:2888:3888
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo1:2888:3888
     volumes:
       - ./zk-single-kafka-single/zoo1/data:/data
       - ./zk-single-kafka-single/zoo1/datalog:/datalog
@@ -30,20 +30,3 @@ services:
       - ./zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
     depends_on:
       - zoo1
-
-  elastic-search:
-    image: elasticsearch/7.1.1
-    restart: always
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    environment:
-      "discovery.type": "single-node"
-
-  kibana:
-    image: kibana/7.1.1
-    restart: always
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elastic-search
