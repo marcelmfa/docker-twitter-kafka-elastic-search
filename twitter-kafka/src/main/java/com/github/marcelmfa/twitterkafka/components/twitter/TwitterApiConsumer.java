@@ -15,14 +15,21 @@ import org.springframework.stereotype.Component;
 
 import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerWrapper;
 import com.github.marcelmfa.twitterkafka.config.TwitterApiConfiguration;
+import com.google.common.collect.Lists;
+import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
+import com.twitter.hbc.core.HttpHosts;
+import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
+import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 
 @Component
-public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
+public class TwitterApiConsumer {
 	
 	private Logger LOG = LoggerFactory.getLogger(TwitterApiConsumer.class);
 
 	private static final String TOPIC = "kafka-tweets";
+	
+	private TwitterApiConfiguration config;
 	
 	private KafkaProducerWrapper kafkaProducerWrapper;
 	
@@ -31,8 +38,28 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 	private Client client;
 
 	public TwitterApiConsumer(TwitterApiConfiguration config, KafkaProducerWrapper kafkaProducerWrapper) {
-		super(config);
+		super();
+		this.config = config;
 		this.kafkaProducerWrapper = kafkaProducerWrapper;
+	}
+	
+	private Client createTwitterClient(BlockingQueue<String> msgQueue) {
+		/**
+		 * Declare the host you want to connect to, the endpoint, and authentication
+		 * (basic auth or oauth)
+		 */
+		StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint()
+				.trackTerms(Lists.newArrayList("kafka"));
+
+		ClientBuilder builder = new ClientBuilder()
+				.name(config.getClientName()) // optional: mainly for the logs
+				.hosts(HttpHosts.STREAM_HOST)
+				.authentication(config.toOAuth1())
+				.endpoint(hosebirdEndpoint)
+				.retries(3)
+				.processor(new StringDelimitedProcessor(msgQueue));
+
+		return builder.build();
 	}
 	
 	@PostConstruct
@@ -47,7 +74,7 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 		client.connect();
 	}
 	
-	public Void run( ) {
+	public void run( ) {
 		String msg = null;
 		while (!client.isDone()) {
 			try {
@@ -62,8 +89,6 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 				kafkaProducerWrapper.digest(TOPIC, msg);
 			}
 		}
-		
-		return null;
 	}
 	
 	@EventListener(ApplicationReadyEvent.class)
