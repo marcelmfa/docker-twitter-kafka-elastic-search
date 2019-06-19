@@ -13,6 +13,8 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 public class TwitterApiConfiguration {
 
 	private static final String CLIENT_NAME_KEY = "twitter.client_name";
+	
+	private static final String POLLING_SECONDS_KEY = "twitter.polling_seconds";
 
 	@Value("${twitter.api_key}")
 	private String apiKey;
@@ -30,7 +32,9 @@ public class TwitterApiConfiguration {
 	private Long maxMessages = 100000L;
 	
 	private String clientName = "Hosebird-Client";
-
+	
+	private Integer pollingSeconds = 5;
+	
 	private Environment env;
 	
 	public TwitterApiConfiguration(Environment env) {
@@ -47,6 +51,10 @@ public class TwitterApiConfiguration {
 		if (env.containsProperty(CLIENT_NAME_KEY)) {
 			clientName = env.getProperty(CLIENT_NAME_KEY);
 		}
+		
+		if (env.containsProperty(POLLING_SECONDS_KEY)) {
+			pollingSeconds = env.getProperty(POLLING_SECONDS_KEY, Integer.class);
+		}
 	}
 
 	public OAuth1 toOAuth1() {
@@ -61,4 +69,7 @@ public class TwitterApiConfiguration {
 		return clientName;
 	}
 	
+	public Integer getPollingSeconds() {
+		return pollingSeconds;
+	}
 }

@@ -9,6 +9,8 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerWrapper;
@@ -44,12 +46,12 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 		client = createTwitterClient(msgQueue);
 		client.connect();
 	}
-
+	
 	public Void run( ) {
 		String msg = null;
 		while (!client.isDone()) {
 			try {
-				msg = msgQueue.poll(5, TimeUnit.SECONDS);
+				msg = msgQueue.poll(config.getPollingSeconds(), TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				LOG.error("Error polling twitter messages", e);
 				client.stop();
@@ -62,6 +64,11 @@ public class TwitterApiConsumer extends AbstractTwitterApi<Void>{
 		}
 		
 		return null;
+	}
+	
+	@EventListener(ApplicationReadyEvent.class)
+	public void runAfterApplicationReady() {
+		run();
 	}
 	
 	@PreDestroy

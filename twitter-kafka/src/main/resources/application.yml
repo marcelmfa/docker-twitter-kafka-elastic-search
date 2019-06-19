@@ -5,3 +5,6 @@ twitter:
   access_token_secret: ${TWITTER_ACCESS_TOKEN_SECRET}
   max_messages: 100
   client_name: "Twitter-Client"
+  polling_seconds: 10
+kafka:
+  boostrap_servers: "127.0.0.1:9092"
