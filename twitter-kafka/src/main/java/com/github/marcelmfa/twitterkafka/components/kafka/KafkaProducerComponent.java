@@ -18,15 +18,15 @@ import org.springframework.stereotype.Component;
 import com.github.marcelmfa.twitterkafka.config.KafkaConfiguration;
 
 @Component
-public class KafkaProducerWrapper {
+public class KafkaProducerComponent {
 	
-	private Logger LOG = LoggerFactory.getLogger(KafkaProducerWrapper.class);
+	private Logger LOG = LoggerFactory.getLogger(KafkaProducerComponent.class);
 	
 	private KafkaProducer<String, String> kafkaProducer;
 	
 	private KafkaConfiguration config;
 	
-	public KafkaProducerWrapper(KafkaConfiguration kafkaConfiguration) {
+	public KafkaProducerComponent(KafkaConfiguration kafkaConfiguration) {
 		super();
 		this.config = kafkaConfiguration;
 	}

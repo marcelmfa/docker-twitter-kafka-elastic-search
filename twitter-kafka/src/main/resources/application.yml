@@ -11,3 +11,10 @@ kafka:
   boostrap_servers: "127.0.0.1:9092"
   topic: "tweets"
   debug: true
+elasticsearch:
+  hostname: ${ES_HOSTNAME}
+  username: ${ES_USERNAME}
+  password: ${ES_PASSWORD}
+  index: "twitter"
+  type: "tweets"
+  debug: true

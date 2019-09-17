@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.Assert;
 
 @Configuration
 public class KafkaConfiguration {
@@ -36,6 +37,9 @@ public class KafkaConfiguration {
 
 	@PostConstruct
 	public void postConstruct() {
+		Assert.hasText(boostrapServers, "'boostrapServers' must not be empty");
+		Assert.hasText(topic, "'topic' must not be empty");
+		
 		if (env.containsProperty(SAFE_PRODUCER_KEY)) {
 			safeProducer = env.getProperty(SAFE_PRODUCER_KEY, Boolean.class);
 		}

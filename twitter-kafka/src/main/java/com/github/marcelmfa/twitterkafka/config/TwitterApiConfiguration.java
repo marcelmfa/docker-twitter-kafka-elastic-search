@@ -1,7 +1,5 @@
 package com.github.marcelmfa.twitterkafka.config;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;

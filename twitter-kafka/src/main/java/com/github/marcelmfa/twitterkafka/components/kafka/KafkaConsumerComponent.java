@@ -11,18 +11,22 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import com.github.marcelmfa.twitterkafka.components.elasticsearch.ElasticSearchProducer;
 import com.github.marcelmfa.twitterkafka.config.KafkaConfiguration;
 
 @Component
-public class KafkaConsumerWrapper {
+public class KafkaConsumerComponent {
 
 	private KafkaConsumer<String, String> kafkaConsumer;
 	
 	private KafkaConfiguration config;
+	
+	private ElasticSearchProducer elasticSearchProducer;
 
-	public KafkaConsumerWrapper(KafkaConfiguration kafkaConfiguration) {
+	public KafkaConsumerComponent(KafkaConfiguration kafkaConfiguration, ElasticSearchProducer elasticSearchProducer) {
 		super();
 		this.config = kafkaConfiguration;
+		this.elasticSearchProducer = elasticSearchProducer;
 	}
 
 	@PostConstruct

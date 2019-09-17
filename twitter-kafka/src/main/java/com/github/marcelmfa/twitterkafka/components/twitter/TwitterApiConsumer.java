@@ -14,7 +14,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerWrapper;
+import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerComponent;
 import com.github.marcelmfa.twitterkafka.config.TwitterApiConfiguration;
 import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
@@ -30,13 +30,13 @@ public class TwitterApiConsumer {
 
 	private TwitterApiConfiguration config;
 	
-	private KafkaProducerWrapper kafkaProducerWrapper;
+	private KafkaProducerComponent kafkaProducerWrapper;
 	
 	private BlockingQueue<String> msgQueue;
 	
 	private Client client;
 
-	public TwitterApiConsumer(TwitterApiConfiguration config, KafkaProducerWrapper kafkaProducerWrapper) {
+	public TwitterApiConsumer(TwitterApiConfiguration config, KafkaProducerComponent kafkaProducerWrapper) {
 		super();
 		this.config = config;
 		this.kafkaProducerWrapper = kafkaProducerWrapper;
