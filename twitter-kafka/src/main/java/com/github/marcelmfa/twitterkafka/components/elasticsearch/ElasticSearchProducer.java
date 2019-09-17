@@ -3,6 +3,7 @@ package com.github.marcelmfa.twitterkafka.components.elasticsearch;
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -72,6 +73,16 @@ public class ElasticSearchProducer {
 		} catch (IOException e) {
 			LOG.error("Failed send data " + jsonData, e);
 			throw e;
+		}
+	}
+	
+	@PreDestroy
+	public void destroy() {
+		LOG.info("----------------------- SHUTTING DOWN ELASTICSEARCH PRODUCER -----------------------");
+		try {
+			client.close();
+		} catch (IOException e) {
+			LOG.error("Failed close elastic search client");
 		}
 	}
 }

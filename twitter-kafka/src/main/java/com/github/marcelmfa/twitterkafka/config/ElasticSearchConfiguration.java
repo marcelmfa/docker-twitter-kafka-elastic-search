@@ -2,6 +2,8 @@ package com.github.marcelmfa.twitterkafka.config;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -9,6 +11,8 @@ import org.springframework.util.Assert;
 
 @Configuration
 public class ElasticSearchConfiguration {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchConfiguration.class);
 
 	private static final String SECURE_KEY = "elasticsearch.secure";
 	
@@ -57,6 +61,7 @@ public class ElasticSearchConfiguration {
 		
 		if (env.containsProperty(DEBUG_KEY)) {
 			debug = env.getProperty(DEBUG_KEY, Boolean.class);
+			LOG.info("ELASTICSEARCH DEBUG ENABLED");
 		}
 	}
 

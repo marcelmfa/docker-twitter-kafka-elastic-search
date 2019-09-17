@@ -14,6 +14,8 @@ public class KafkaConfiguration {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(KafkaConfiguration.class);
 	
+	private static final String POLLING_SECONDS_KEY = "kafka.polling_seconds";
+	
 	private static final String SAFE_PRODUCER_KEY = "kafka.safe_producer";
 	
 	private static final String DEBUG_KEY = "kafka.debug";
@@ -23,6 +25,8 @@ public class KafkaConfiguration {
 	
 	@Value("${kafka.topic}")
 	private String topic;
+	
+	private Integer pollingSeconds = 5;
 	
 	private boolean safeProducer = false;
 	
@@ -40,6 +44,10 @@ public class KafkaConfiguration {
 		Assert.hasText(boostrapServers, "'boostrapServers' must not be empty");
 		Assert.hasText(topic, "'topic' must not be empty");
 		
+		if (env.containsProperty(POLLING_SECONDS_KEY)) {
+			pollingSeconds = env.getProperty(POLLING_SECONDS_KEY, Integer.class);
+		}
+		
 		if (env.containsProperty(SAFE_PRODUCER_KEY)) {
 			safeProducer = env.getProperty(SAFE_PRODUCER_KEY, Boolean.class);
 		}
@@ -56,6 +64,10 @@ public class KafkaConfiguration {
 	
 	public String getTopic() {
 		return topic;
+	}
+	
+	public Integer getPollingSeconds() {
+		return pollingSeconds;
 	}
 	
 	public boolean isSafeProducer() {
