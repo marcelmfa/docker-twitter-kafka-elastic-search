@@ -12,6 +12,7 @@ kafka:
   topic: "tweets"
   debug: true
 elasticsearch:
+  secure: true
   hostname: ${ES_HOSTNAME}
   username: ${ES_USERNAME}
   password: ${ES_PASSWORD}

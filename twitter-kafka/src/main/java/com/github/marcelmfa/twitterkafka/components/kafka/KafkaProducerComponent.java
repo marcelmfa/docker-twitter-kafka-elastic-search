@@ -20,7 +20,9 @@ import com.github.marcelmfa.twitterkafka.config.KafkaConfiguration;
 @Component
 public class KafkaProducerComponent {
 	
-	private Logger LOG = LoggerFactory.getLogger(KafkaProducerComponent.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KafkaProducerComponent.class);
+	
+	private static final String TAG = "[KAFKA PRODUCER] ";
 	
 	private KafkaProducer<String, String> kafkaProducer;
 	
@@ -58,9 +60,9 @@ public class KafkaProducerComponent {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
 				if (exception != null) {
-					LOG.error("Failed send message", exception);
+					LOG.error(TAG + "Failed send message", exception);
 				} else if (config.isDebug()){
-					LOG.info("Message sent to Kafka - TOPIC: " + metadata.topic() +
+					LOG.info(TAG + "Message sent to Kafka - TOPIC: " + metadata.topic() +
 							"Partition: " + metadata.partition() +
 							"offset: " + metadata.offset());
 				}

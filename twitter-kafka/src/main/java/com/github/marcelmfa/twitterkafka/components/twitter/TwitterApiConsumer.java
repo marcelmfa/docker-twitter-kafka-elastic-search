@@ -10,8 +10,6 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerComponent;
@@ -26,7 +24,9 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 @Component
 public class TwitterApiConsumer {
 	
-	private Logger LOG = LoggerFactory.getLogger(TwitterApiConsumer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TwitterApiConsumer.class);
+	
+	private static final String TAG = "[TWITTER CONSUMER] ";
 
 	private TwitterApiConfiguration config;
 	
@@ -73,10 +73,9 @@ public class TwitterApiConsumer {
 		client.connect();
 	}
 	
-	@EventListener(ApplicationReadyEvent.class)
-	public void runAfterApplicationReady() {
+	public void start() {
 		
-		LOG.info("Starting Twitter consumer for terms: " + Arrays.toString(config.getTerms()));
+		LOG.info(TAG + "Starting for terms: " + Arrays.toString(config.getTerms()));
 		String msg = null;
 		while (!client.isDone()) {
 			try {
@@ -88,10 +87,10 @@ public class TwitterApiConsumer {
 			}
 			
 			if (msg == null) {
-				LOG.info("No message");
+				LOG.info(TAG + "No message");
 			} else {
 				if (config.isDebug()) {
-					LOG.info("Message received " + msg);
+					LOG.info(TAG + "Message received " + msg);
 				}
 				kafkaProducerWrapper.digest(msg);
 			}

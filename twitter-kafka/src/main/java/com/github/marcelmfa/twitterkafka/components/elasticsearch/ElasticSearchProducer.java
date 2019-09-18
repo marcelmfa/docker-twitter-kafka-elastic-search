@@ -28,6 +28,8 @@ public class ElasticSearchProducer {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchProducer.class);
 	
+	private static final String TAG = "[ELASTICSEARCH PRODUCER] ";
+	
 	private ElasticSearchConfiguration config;
 
 	private RestHighLevelClient client;
@@ -66,12 +68,12 @@ public class ElasticSearchProducer {
 			IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 			
 			if (config.isDebug()) {
-				LOG.info("Data: " + jsonData + " has been sent to ElasticSearch sucessfully. ID: " + response.getId());
+				LOG.info(TAG + "Data: " + jsonData + " has been sent to ElasticSearch sucessfully. ID: " + response.getId());
 			}
 			
 			return response.getId();
 		} catch (IOException e) {
-			LOG.error("Failed send data " + jsonData, e);
+			LOG.error(TAG + "Failed send data " + jsonData, e);
 			throw e;
 		}
 	}

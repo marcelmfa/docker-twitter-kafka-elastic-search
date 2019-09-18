@@ -12,11 +12,9 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.github.marcelmfa.twitterkafka.components.elasticsearch.ElasticSearchProducer;
@@ -26,6 +24,8 @@ import com.github.marcelmfa.twitterkafka.config.KafkaConfiguration;
 public class KafkaConsumerComponent {
 
 	private static final Logger LOG = LoggerFactory.getLogger(KafkaConsumerComponent.class);
+	
+	private static final String TAG = "[KAFKA CONSUMER] ";
 	
 	/**
 	 * Kafka consumer default values.
@@ -49,18 +49,18 @@ public class KafkaConsumerComponent {
 	public void postConstruct() {
 		Properties props = new Properties();
 		props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBoostrapServers());
-		props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-		props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+		props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+		props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 		props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
 		props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, DEFAULT_OFFSET_CONFIG);
 		
-		kafkaConsumer = new KafkaConsumer<>(props);
-		kafkaConsumer.subscribe(Arrays.asList(config.getTopic()));
+		kafkaConsumer = new KafkaConsumer<>(props);		
 	}
-	
-	@EventListener(ApplicationReadyEvent.class)
-	public void runAfterApplicationReady() throws IOException {
+
+	public void start() throws IOException {
 		
+		LOG.info(TAG + "Starting for topic: " + config.getTopic() + " and consumer-group: " + GROUP_ID);
+		kafkaConsumer.subscribe(Arrays.asList(config.getTopic()));
 		while (true) {
 			ConsumerRecords<String, String> records = kafkaConsumer
 					.poll(Duration.ofSeconds(config.getPollingSeconds()));
@@ -68,12 +68,12 @@ public class KafkaConsumerComponent {
 			for (ConsumerRecord<String, String> record: records) {
 				String jsonString = record.value();
 				if (config.isDebug()) {
-					LOG.info("Read data: " + jsonString + " from Kafka");
+					LOG.info(TAG + "Read data: " + jsonString + " from Kafka");
 				}
 				try {
 					elasticSearchProducer.produce(jsonString);
 				} catch (IOException e) {
-					LOG.error("Failed send data " + jsonString + " to ElasticSearch");
+					LOG.error(TAG + "Failed send data " + jsonString + " to ElasticSearch");
 					throw e;
 				}
 			}
@@ -85,4 +85,5 @@ public class KafkaConsumerComponent {
 		LOG.info("----------------------- SHUTTING DOWN KAFKA CONSUMER -----------------------");
 		kafkaConsumer.close();
 	}
+
 }
