@@ -10,6 +10,8 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.github.marcelmfa.twitterkafka.components.kafka.KafkaProducerComponent;
@@ -73,8 +75,8 @@ public class TwitterApiConsumer {
 		client.connect();
 	}
 	
+	@EventListener(ApplicationReadyEvent.class)
 	public void start() {
-		
 		LOG.info(TAG + "Starting for terms: " + Arrays.toString(config.getTerms()));
 		String msg = null;
 		while (!client.isDone()) {

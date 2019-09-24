@@ -1,4 +1,4 @@
-package com.github.marcelmfa.twitterkafka.components.elasticsearch;
+package com.github.marcelmfa.kafkaelasticsearch.components.elasticsearch;
 
 import java.io.IOException;
 
@@ -17,11 +17,12 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.github.marcelmfa.twitterkafka.config.ElasticSearchConfiguration;
+import com.github.marcelmfa.kafkaelasticsearch.config.ElasticSearchConfiguration;
 
 @Component
 public class ElasticSearchProducer {
@@ -58,11 +59,14 @@ public class ElasticSearchProducer {
 		} else {
 			client = new RestHighLevelClient(RestClient.builder(new HttpHost(config.getHostname(), 80, "http")));
 		}
+		
+		LOG.info(TAG + "Client created for index " + config.getIndex() + " type " + config.getType());
 	}
 	
 	public String produce(String jsonData) throws IOException {
 
-		IndexRequest request = new IndexRequest(config.getIndex(), config.getType());
+		IndexRequest request = new IndexRequest(config.getIndex(), config.getType())
+				.source(jsonData, XContentType.JSON);
 		
 		try {
 			IndexResponse response = client.index(request, RequestOptions.DEFAULT);

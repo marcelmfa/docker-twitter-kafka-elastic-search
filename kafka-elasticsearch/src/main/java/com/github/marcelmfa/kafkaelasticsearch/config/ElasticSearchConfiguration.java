@@ -1,4 +1,4 @@
-package com.github.marcelmfa.twitterkafka.config;
+package com.github.marcelmfa.kafkaelasticsearch.config;
 
 import javax.annotation.PostConstruct;
 
